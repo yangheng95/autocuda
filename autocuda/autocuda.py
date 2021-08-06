@@ -153,13 +153,20 @@ if check_gpus():
             return chosen_gpu
 
 
-def auto_device():
-    import torch
+def auto_cuda_index():
     index = 'cpu'
     if torch.cuda.is_available():
         chosen_gpu = GPUManager().auto_choice()
         index = chosen_gpu['index']
-    return 'cuda:{}'.format(index)
+    return index
+
+
+def auto_cuda_name():
+    device_name = ''
+    if torch.cuda.is_available():
+        chosen_gpu = GPUManager().auto_choice()
+        device_name = chosen_gpu['gpu_name']
+    return device_name
 
 
 def auto_cuda_info():
@@ -168,3 +175,4 @@ def auto_cuda_info():
     :return: information dict of the cuda device having largest memory
     '''
     return GPUManager().auto_choice()
+

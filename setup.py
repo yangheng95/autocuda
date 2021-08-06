@@ -8,7 +8,7 @@
 from setuptools import setup, find_packages
 setup(
     name='autocuda',
-    version='0.1',
+    version='0.2',
     description='This package provides the function to auto-choose the cuda device hase largest free memory in Pytorch',
 
     url='https://github.com/yangheng95/autocuda',
