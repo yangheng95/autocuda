@@ -158,7 +158,15 @@ def auto_cuda_index():
     if torch.cuda.is_available():
         chosen_gpu = GPUManager().auto_choice()
         index = chosen_gpu['index']
-    return index
+    return int(index)
+
+
+def auto_cuda():
+    index = 'cpu'
+    if torch.cuda.is_available():
+        chosen_gpu = GPUManager().auto_choice()
+        index = chosen_gpu['index']
+    return "cuda:{}".format(index)
 
 
 def auto_cuda_name():

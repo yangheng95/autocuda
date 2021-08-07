@@ -6,9 +6,10 @@
 # Copyright (C) 2021. All Rights Reserved.
 
 from setuptools import setup, find_packages
+
 setup(
     name='autocuda',
-    version='0.3',
+    version='0.5',
     description='This package provides the function to auto-choose the cuda device hase largest free memory in Pytorch',
 
     url='https://github.com/yangheng95/autocuda',
