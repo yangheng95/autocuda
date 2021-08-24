@@ -147,7 +147,6 @@ if check_gpus():
                 # print('Given an unavailable mode,will be chosen by memory')
                 chosen_gpu = self._sort_by_memory(unspecified_gpus)[0]
             chosen_gpu['specified'] = True
-            index = chosen_gpu['index'] if chosen_gpu['memory.free'] > threshold else 'pending'
             # print('Using GPU {i}:\n{info}'.format(i=index, info='\n'.join(
             #     [str(k) + ':' + str(v) for k, v in chosen_gpu.items()])))
             return chosen_gpu
