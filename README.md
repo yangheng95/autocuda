@@ -32,4 +32,4 @@ print('Choosing cuda device: {}'.format(cuda_device_name))
 ```
 
 ### Copyright
-This package is based on https://github.com/QuantumLiu/tf_gpu_manager with MIT licese
+This package is based on https://github.com/QuantumLiu/tf_gpu_manager with MIT license
