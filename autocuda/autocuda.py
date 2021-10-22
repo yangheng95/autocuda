@@ -47,7 +47,7 @@ if check_gpus():
         解析一行nvidia-smi返回的csv格式文本
         '''
         numberic_args = ['memory.free', 'memory.total', 'power.draw', 'power.limit']  # 可计数的参数
-        power_manage_enable = lambda v: (not 'Not Support' in v)  # lambda表达式，显卡是否滋瓷power management（笔记本可能不滋瓷）
+        power_manage_enable = lambda v: (not 'NOT SUPPORT' in v.upper()) and (not 'N/A' in v.upper())  # lambda表达式，显卡是否滋瓷power management（笔记本可能不滋瓷）
         to_numberic = lambda v: float(v.upper().strip().replace('MIB', '').replace('W', ''))  # 带单位字符串去掉单位
         process = lambda k, v: (
             (int(to_numberic(v)) if power_manage_enable(v) else 1) if k in numberic_args else v.strip())
