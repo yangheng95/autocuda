@@ -68,7 +68,9 @@ if check_gpus():
         '''
         qargs = ['index', 'gpu_name', 'memory.free', 'memory.total', 'power.draw', 'power.limit'] + qargs
         cmd = 'nvidia-smi --query-gpu={} --format=csv,noheader'.format(','.join(qargs))
-        results = os.popen(cmd).readlines()
+        f = os.popen(cmd)
+        results = f.readlines()
+        f.close()
         return [parse(line, qargs) for line in results]
 
 
