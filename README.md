@@ -1,10 +1,11 @@
 # autocuda - Auto choose the cuda device having the largest free memory in Pytorch
+[![Downloads](https://pepy.tech/badge/autocuda)](https://pepy.tech/project/autocuda)
+[![Downloads](https://pepy.tech/badge/autocuda/month)](https://pepy.tech/project/autocuda)
+[![Downloads](https://pepy.tech/badge/autocuda/week)](https://pepy.tech/project/autocuda)
 
 ![PyPI - Python Version](https://img.shields.io/badge/python-3.6-blue.svg) 
 [![PyPI](https://img.shields.io/pypi/v/autocuda)](https://pypi.org/project/autocuda/)
 [![PyPI_downloads](https://img.shields.io/pypi/dm/autocuda)](https://pypi.org/project/autocuda/)
-![Repo Size](https://img.shields.io/github/repo-size/yangheng95/autocuda)
-
 
 # Usage
 ## Install
