@@ -26,7 +26,8 @@ def check_gpus():
     http://pytorch-cn.readthedocs.io/zh/latest/package_references/torch-cuda/
     '''
     if not torch.cuda.is_available():
-        print('This script could only be used to manage NVIDIA GPUs,but no GPU found in your device')
+        # print('This script could only be used to manage NVIDIA GPUs,but no GPU found in your device')
+        print('No CUDA GPU found in your device')
         return False
     elif not 'NVIDIA System Management' in os.popen('nvidia-smi -h').read():
         print("'nvidia-smi' tool not found.")
@@ -155,31 +156,39 @@ if check_gpus():
 def auto_cuda_index():
     index = 'cpu'
     if torch.cuda.is_available():
-        chosen_gpu = GPUManager().auto_choice()
-        index = chosen_gpu['index']
-    return int(index) if index.isdigit() else index
-
+        try:
+            chosen_gpu = GPUManager().auto_choice()
+            index = chosen_gpu['index']
+            return int(index) if index.isdigit() else index
+        except:
+            return 0
 
 def auto_cuda():
     index = 'cpu'
-    if torch.cuda.is_available():
-        chosen_gpu = GPUManager().auto_choice()
-        index = chosen_gpu['index']
-    return "cuda:{}".format(index) if index.isdigit() else index
-
+    try:
+        if torch.cuda.is_available():
+            chosen_gpu = GPUManager().auto_choice()
+            index = chosen_gpu['index']
+        return "cuda:{}".format(index) if index.isdigit() else index
+    except:
+        return "cuda:0"
 
 def auto_cuda_name():
     device_name = ''
-    if torch.cuda.is_available():
-        chosen_gpu = GPUManager().auto_choice()
-        device_name = chosen_gpu['gpu_name']
-    return device_name
-
+    try:
+        if torch.cuda.is_available():
+            chosen_gpu = GPUManager().auto_choice()
+            device_name = chosen_gpu['gpu_name']
+        return device_name
+    except:
+        return 'N.A.'
 
 def auto_cuda_info():
     '''
 
     :return: information dict of the cuda device having largest memory
     '''
-    return GPUManager().auto_choice()
-
+    try:
+        return GPUManager().auto_choice()
+    except:
+        return 'N.A.'
