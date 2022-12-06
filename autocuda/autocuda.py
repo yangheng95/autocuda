@@ -48,7 +48,8 @@ if check_gpus():
         解析一行nvidia-smi返回的csv格式文本
         '''
         numberic_args = ['memory.free', 'memory.total', 'power.draw', 'power.limit']  # 可计数的参数
-        power_manage_enable = lambda v: (not 'NOT SUPPORT' in v.upper()) and (not 'N/A' in v.upper())  # lambda表达式，显卡是否滋瓷power management（笔记本可能不滋瓷）
+        power_manage_enable = lambda v: (not 'NOT SUPPORT' in v.upper()) and (
+            not 'N/A' in v.upper())  # lambda表达式，显卡是否滋瓷power management（笔记本可能不滋瓷）
         to_numberic = lambda v: float(v.upper().strip().replace('MIB', '').replace('W', ''))  # 带单位字符串去掉单位
         process = lambda k, v: (
             (int(to_numberic(v)) if power_manage_enable(v) else 1) if k in numberic_args else v.strip())
@@ -96,10 +97,16 @@ if check_gpus():
         def __init__(self, qargs=[]):
             '''
             '''
+            available_gpus = os.getenv('CUDA_VISIBLE_DEVICES').split(',') if os.getenv(
+                'CUDA_VISIBLE_DEVICES') else []
+            _available_gpus = available_gpus[:]
             self.qargs = qargs
             self.gpus = query_gpu(qargs)
             for gpu in self.gpus:
-                gpu['specified'] = False
+                gpu['specified'] = False if gpu['index'] in available_gpus else True
+                _available_gpus.pop(_available_gpus.index(gpu['index'])) if gpu['index'] in _available_gpus else None
+            if _available_gpus:
+                print('WARNING:Some specified GPUs in CUDA_VISIBLE_DEVICES are not available now: {}'.format(', '.join(_available_gpus)))
             self.gpu_num = len(self.gpus)
 
         def _sort_by_memory(self, gpus, by_size=False):
@@ -133,7 +140,7 @@ if check_gpus():
             '''
             for old_infos, new_infos in zip(self.gpus, query_gpu(self.qargs)):
                 old_infos.update(new_infos)
-            unspecified_gpus = [gpu for gpu in self.gpus if not gpu['specified']] or self.gpus
+            unspecified_gpus = [gpu for gpu in self.gpus if not gpu['specified']]
 
             if mode == 0:
                 # print('Choosing the GPU device has largest free memory...')
@@ -160,8 +167,9 @@ def auto_cuda_index():
             chosen_gpu = GPUManager().auto_choice()
             index = chosen_gpu['index']
             return int(index) if index.isdigit() else index
-        except:
-            return 0
+        except Exception as e:
+            return index
+
 
 def auto_cuda():
     index = 'cpu'
@@ -170,8 +178,9 @@ def auto_cuda():
             chosen_gpu = GPUManager().auto_choice()
             index = chosen_gpu['index']
         return "cuda:{}".format(index) if index.isdigit() else index
-    except:
-        return "cuda:0"
+    except Exception as e:
+        return index
+
 
 def auto_cuda_name():
     device_name = ''
@@ -180,8 +189,9 @@ def auto_cuda_name():
             chosen_gpu = GPUManager().auto_choice()
             device_name = chosen_gpu['gpu_name']
         return device_name
-    except:
+    except Exception as e:
         return 'N.A.'
+
 
 def auto_cuda_info():
     '''
