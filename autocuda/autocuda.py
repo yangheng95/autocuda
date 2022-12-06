@@ -98,7 +98,7 @@ if check_gpus():
             '''
             '''
             available_gpus = os.getenv('CUDA_VISIBLE_DEVICES').split(',') if os.getenv(
-                'CUDA_VISIBLE_DEVICES') else []
+                'CUDA_VISIBLE_DEVICES') else [str(idx) for idx in range(torch.cuda.device_count())] if torch.cuda.device_count() > 0 else []
             _available_gpus = available_gpus[:]
             self.qargs = qargs
             self.gpus = query_gpu(qargs)
