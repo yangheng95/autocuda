@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+from functools import lru_cache
+import os
+import torch
+
 """
 Created on Tue Aug 22 19:41:55 2017
 
@@ -15,21 +20,19 @@ gm=GPUManager()
 torch.cuda.set_device(gm.auto_choice())
 '''
 
-import os
-
-import torch
-
 
 def check_gpus():
     '''
     GPU available check
     http://pytorch-cn.readthedocs.io/zh/latest/package_references/torch-cuda/
     '''
+    with os.popen('nvidia-smi -h') as f:
+        info = f.read()
     if not torch.cuda.is_available():
         # print('This script could only be used to manage NVIDIA GPUs,but no GPU found in your device')
         print('No CUDA GPU found in your device')
         return False
-    elif not 'NVIDIA System Management' in os.popen('nvidia-smi -h').read():
+    elif not 'NVIDIA System Management' in info:
         print("'nvidia-smi' tool not found.")
         return False
     return True
@@ -67,7 +70,8 @@ if check_gpus():
         '''
         qargs = ['index', 'gpu_name', 'memory.free', 'memory.total', 'power.draw', 'power.limit'] + qargs
         cmd = 'nvidia-smi --query-gpu={} --format=csv,noheader'.format(','.join(qargs))
-        results = os.popen(cmd).readlines()
+        with os.popen(cmd) as f:
+            results = f.readlines()
         return [parse(line, qargs) for line in results]
 
 
@@ -82,8 +86,8 @@ if check_gpus():
         return float(d['power.draw']) / d['power.limit']
 
 
-    class GPUManager():
-        '''
+    class GPUManager(object):
+        """
         qargs:
             query arguments
         A manager which can list all available GPU devices
@@ -92,13 +96,14 @@ if check_gpus():
         GPU设备管理器，考虑列举出所有可用GPU设备，并加以排序，自动选出
         最空闲的设备。在一个GPUManager对象内会记录每个GPU是否已被指定，
         优先选择未指定的GPU。
-        '''
+        """
 
         def __init__(self, qargs=[]):
             '''
             '''
             available_gpus = os.getenv('CUDA_VISIBLE_DEVICES').split(',') if os.getenv(
-                'CUDA_VISIBLE_DEVICES') else [str(idx) for idx in range(torch.cuda.device_count())] if torch.cuda.device_count() > 0 else []
+                'CUDA_VISIBLE_DEVICES') else [str(idx) for idx in
+                                              range(torch.cuda.device_count())] if torch.cuda.device_count() > 0 else []
             _available_gpus = available_gpus[:]
             self.qargs = qargs
             self.gpus = query_gpu(qargs)
@@ -106,7 +111,8 @@ if check_gpus():
                 gpu['specified'] = False if gpu['index'] in available_gpus else True
                 _available_gpus.pop(_available_gpus.index(gpu['index'])) if gpu['index'] in _available_gpus else None
             if _available_gpus:
-                print('WARNING:Some specified GPUs in CUDA_VISIBLE_DEVICES are not available now: {}'.format(', '.join(_available_gpus)))
+                print('WARNING:Some specified GPUs in CUDA_VISIBLE_DEVICES are not available now: {}'.format(
+                    ', '.join(_available_gpus)))
             self.gpu_num = len(self.gpus)
 
         def _sort_by_memory(self, gpus, by_size=False):
@@ -160,6 +166,7 @@ if check_gpus():
             return chosen_gpu
 
 
+@lru_cache(maxsize=32)
 def auto_cuda_index():
     index = 'cpu'
     if torch.cuda.is_available():
@@ -171,6 +178,7 @@ def auto_cuda_index():
             return index
 
 
+@lru_cache(maxsize=32)
 def auto_cuda():
     index = 'cpu'
     try:
@@ -182,6 +190,7 @@ def auto_cuda():
         return index
 
 
+@lru_cache(maxsize=32)
 def auto_cuda_name():
     device_name = ''
     try:
@@ -193,9 +202,9 @@ def auto_cuda_name():
         return 'N.A.'
 
 
+@lru_cache(maxsize=32)
 def auto_cuda_info():
     '''
-
     :return: information dict of the cuda device having largest memory
     '''
     try:
